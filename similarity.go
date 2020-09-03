@@ -2,12 +2,13 @@ package main
 
 import (
 	"image"
-	
 	"os"
 	
 	"image/png"
 	"io/ioutil"
 	"path/filepath"
+    
+    "github.com/ThinkingLogic/jenks"
     
     "go.uber.org/zap"
 )
@@ -23,6 +24,7 @@ func main() {
 	)
 	image.RegisterFormat("png", "png", png.Decode, png.DecodeConfig)
 	items, _ := ioutil.ReadDir(".")
+	var data []float64
 	
     for _, item := range items {
         if !item.IsDir() {
@@ -51,7 +53,18 @@ func main() {
 					zap.String("File: ", item.Name()),
 					zap.Int("Count: ", int(alphaCount)),
 				)
+				data = append(data, float64(alphaCount))						
         	}
         }
     }
+    allBreaks := jenks.AllNaturalBreaks(data, 4)
+    
+    for _,breaks := range allBreaks {
+    	logger.Info("Natural breaks",
+    		zap.Float64s("Breaks", breaks),
+    	)
+    }
+    
+
+    
 }
